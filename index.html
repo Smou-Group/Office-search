@@ -8,7 +8,41 @@
 <style>
   :root{--brand:#0f5c6e;}
   body{font-family: Tahoma, Arial, sans-serif; background:#f7f7f7; padding:20px; margin:0;}
-  .card{max-width:1100px;margin:0 auto;background:#fff;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.08);padding:18px;}
+
+  .card{
+    max-width:1100px;
+    margin:0 auto;
+    background:#fff;
+    border-radius:14px;
+    box-shadow:0 10px 30px rgba(0,0,0,.08);
+    padding:18px;
+    position:relative;
+  }
+
+  /* ===== Back Button ===== */
+  .back-btn{
+    position:absolute;
+    top:18px;
+    right:18px;
+    width:42px;
+    height:42px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-decoration:none;
+    font-size:20px;
+    font-weight:bold;
+    color:#fff;
+    background:var(--brand);
+    box-shadow:0 6px 18px rgba(0,0,0,.18);
+    transition:all .25s ease;
+  }
+  .back-btn:hover{
+    background:#0b4c59;
+    transform:translateY(-3px);
+  }
+
   h2{margin:0 0 10px 0;text-align:center}
 
   .header{display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:8px}
@@ -16,10 +50,28 @@
   .brandLine{font-size:13px;color:#666;text-align:center;margin-top:-2px}
 
   .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:center}
-  input[type="text"]{padding:12px 14px;min-width:320px;border:1px solid #ddd;border-radius:10px;font-size:16px;outline:none}
-  input[type="text"]:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(15,92,110,.15)}
+  input[type="text"]{
+    padding:12px 14px;
+    min-width:320px;
+    border:1px solid #ddd;
+    border-radius:10px;
+    font-size:16px;
+    outline:none
+  }
+  input[type="text"]:focus{
+    border-color:var(--brand);
+    box-shadow:0 0 0 3px rgba(15,92,110,.15)
+  }
+
   .note{color:#666;margin-top:10px;text-align:center}
-  .pill{display:inline-block;background:rgba(15,92,110,.08);color:var(--brand);padding:6px 10px;border-radius:999px;font-size:13px}
+  .pill{
+    display:inline-block;
+    background:rgba(15,92,110,.08);
+    color:var(--brand);
+    padding:6px 10px;
+    border-radius:999px;
+    font-size:13px
+  }
 
   table{width:100%;border-collapse:collapse;margin-top:14px;background:#fff}
   th,td{border:1px solid #e2e2e2;padding:10px;text-align:right;vertical-align:top}
@@ -35,7 +87,7 @@
   @media print{
     body{background:#fff;padding:0}
     .card{box-shadow:none;border-radius:0;max-width:none;margin:0;padding:0}
-    .actions, .row, .small{display:none !important;}
+    .actions, .row, .small, .back-btn{display:none !important;}
     th{position:static}
     .logo{width:120px}
     @page{margin:12mm;}
@@ -45,6 +97,9 @@
 
 <body>
   <div class="card">
+
+    <!-- زر الرجوع -->
+    <a href="https://portal.smougroup.com/" class="back-btn" title="الرجوع">←</a>
 
     <div class="header">
       <img class="logo" src="logo.png" alt="SMOU Logo" />
@@ -77,7 +132,7 @@
 <script>
 let data = [];
 let headers = [];
-let SEARCH_COLS = []; // عمودين البحث
+let SEARCH_COLS = [];
 
 const info = document.getElementById("info");
 const table = document.getElementById("table");
@@ -87,7 +142,7 @@ const searchInput = document.getElementById("search");
 
 const norm = s => (s ?? "")
   .toString()
-  .replace(/[\u064B-\u0652]/g, "") // إزالة التشكيل
+  .replace(/[\u064B-\u0652]/g, "")
   .trim()
   .replace(/\s+/g, " ")
   .toLowerCase();
@@ -122,7 +177,6 @@ function parseCSV(text){
   const lines = text.split("\n").filter(l => l.trim() !== "");
   if (!lines.length) return {headers:[], rows:[]};
 
-  // إزالة BOM إن وجد
   lines[0] = lines[0].replace(/^\uFEFF/, "");
 
   const sep = detectSeparator(lines[0]);
@@ -139,16 +193,13 @@ function parseCSV(text){
 }
 
 function detectSearchColumns(){
-  // نحاول نجيب العمودين بالاسم الدقيق أولاً
   const cols = [];
-
   const contractorExact = headers.find(h => h.trim() === "شركة المقاولات");
   const consultantExact = headers.find(h => h.trim() === "مكتب الاستشاري");
 
   if (contractorExact) cols.push(contractorExact);
   if (consultantExact) cols.push(consultantExact);
 
-  // إن ما لقى، نحاول مطابقة تقريبية
   if (!contractorExact){
     const fuzzy = headers.find(h => h.includes("مقاول") || h.includes("مقاولات"));
     if (fuzzy) cols.push(fuzzy);
@@ -158,8 +209,7 @@ function detectSearchColumns(){
     if (fuzzy) cols.push(fuzzy);
   }
 
-  // نضمن عدم التكرار ونرجع 2 فقط
-  return Array.from(new Set(cols)).slice(0, 2);
+  return Array.from(new Set(cols)).slice(0,2);
 }
 
 function escapeHtml(str){
@@ -191,30 +241,22 @@ function search(){
   }
 
   if (!SEARCH_COLS.length){
-    info.textContent = "⚠️ لم أتمكن من تحديد عمودي (شركة المقاولات) و(مكتب الاستشاري) داخل الملف.";
+    info.textContent = "⚠️ لم أتمكن من تحديد عمودي البحث.";
     renderTable([]);
     return;
   }
 
   if (!q){
-    info.innerHTML = `البيانات جاهزة ✔️ اكتب اسم المكتب/الشركة للبحث. <span class="pill">البحث داخل: ${SEARCH_COLS.map(escapeHtml).join(" + ")}</span>`;
+    info.innerHTML = `اكتب اسم المكتب/الشركة للبحث. <span class="pill">البحث داخل: ${SEARCH_COLS.join(" + ")}</span>`;
     renderTable([]);
     return;
   }
 
   const res = data.filter(r => SEARCH_COLS.some(col => norm(r[col]).includes(q)));
-
-  if (!res.length){
-    info.innerHTML = `لا توجد نتائج. <span class="pill">البحث داخل: ${SEARCH_COLS.map(escapeHtml).join(" + ")}</span>`;
-    renderTable([]);
-    return;
-  }
-
-  info.innerHTML = `عدد النتائج: ${res.length} <span class="pill">البحث داخل: ${SEARCH_COLS.map(escapeHtml).join(" + ")}</span>`;
+  info.innerHTML = res.length ? `عدد النتائج: ${res.length}` : "لا توجد نتائج";
   renderTable(res);
 }
 
-/* ✅ تحميل الملف من office.csv */
 fetch("office.csv?v=" + Date.now())
   .then(r => {
     if (!r.ok) throw new Error("office.csv not found");
@@ -224,20 +266,10 @@ fetch("office.csv?v=" + Date.now())
     const parsed = parseCSV(text);
     data = parsed.rows;
     SEARCH_COLS = detectSearchColumns();
-
-    if (!data.length){
-      info.textContent = "⚠️ ملف البيانات فارغ أو غير مقروء. احفظه CSV (UTF-8) من Excel.";
-      return;
-    }
-    if (!SEARCH_COLS.length){
-      info.textContent = "⚠️ تم تحميل الملف لكن لم أجد عمودي (شركة المقاولات) و(مكتب الاستشاري).";
-      return;
-    }
     search();
   })
-  .catch(err => {
-    info.textContent = "⚠️ تعذر تحميل ملف office.csv. تأكد أنه مرفوع بجانب index.html.";
-    console.error(err);
+  .catch(() => {
+    info.textContent = "⚠️ تعذر تحميل ملف office.csv.";
   });
 
 searchInput.addEventListener("input", search);
